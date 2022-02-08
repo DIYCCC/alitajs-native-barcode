@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.3.12.RELEASE</version>
+    <relativePath/>
+  </parent> -->
+
+  <!-- 低代码平台顶级 POM -->
+  <groupId>com.iwhalecloud.alita.native</groupId>
+  <artifactId>alita-native-barcode</artifactId>
+  <packaging>aar</packaging>
+  <version>0.0.1</version>
+  <description>内部测试</description>
+
+  <properties>
+    <!-- 低代码平台版本号 -->
+    <lcdp.version>1.1.0-SNAPSHOT</lcdp.version>
+    <!-- 二方库 -->
+    <litchi.version>1.0.0-SNAPSHOT</litchi.version>
+    <ftf.version>9.2.19</ftf.version>
+    <rhin.version>1.0.0-SNAPSHOT</rhin.version>
+
+    <!-- 使用最新版本 Maven 插件，覆盖 spring-boot-dependencies 中定义的部分插件版本   -->
+    <!-- https://maven.apache.org/plugins/index.html -->
+    <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+    <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
+    <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+  </properties>
+
+  <modules>
+    <module>embed</module>
+    <module>server</module>
+  </modules>
+
+  <build>
+    <!-- 使用最新版本插件 -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <showWarnings>true</showWarnings>
+            <showDeprecation>true</showDeprecation>
+            <compilerArgs>
+              <arg>-Xlint:all,-classfile,-options,-path,-processing</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <!-- 默认为 true, 会导致不同的 SpringBootTest 测试类不能完全隔离导致单元测试失败 -->
+            <reuseForks>false</reuseForks>
+            <!-- 似乎还不支持并行执行，效果不明显: https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit-platform.html -->
+            <parallel>suitesAndClasses</parallel>
+            <forkCount>4</forkCount>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.7</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>report</id>
+              <phase>prepare-package</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <configuration>
+          <rules>
+            <banDuplicatePomDependencyVersions/>
+            <dependencyConvergence/>
+          </rules>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.8.1</version>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+          <processAllModules>true</processAllModules>
+          <processDependencies>false</processDependencies>
+          <processParent>true</processParent>
+          <processPlugins>false</processPlugins>
+          <processProject>true</processProject>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <!--suppress MavenModelInspection -->
+      <url>${snapshots.url}</url>
+    </snapshotRepository>
+    <repository>
+      <id>releases</id>
+      <!--suppress MavenModelInspection -->
+      <url>${releases.url}</url>
+    </repository>
+  </distributionManagement>
+</project>
